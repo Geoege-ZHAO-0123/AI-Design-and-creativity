@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Long Rally</title>
+  <meta name="description" content="Follow one tennis ball from the serve. Four simple rules decide where it goes next, every path stays on the court, and after thousands of shots a shape nobody planned appears.">
+  <meta property="og:title" content="Long Rally">
+  <meta property="og:description" content="One ball. Four rules. Thousands of shots.">
+  <meta property="og:image" content="media/poster.jpg">
+  <meta name="theme-color" content="#000000">
+  <link rel="stylesheet" href="style.css">
+  <script>document.documentElement.classList.add('js'); if (location.search.includes('teaser')) document.documentElement.classList.add('teaser');</script>
+</head>
+<body>
+  <canvas id="court" aria-label="A tennis court at night, with every path of the ball traced in light"></canvas>
+  <canvas id="trails" aria-hidden="true"></canvas>
+  <canvas id="live" aria-hidden="true"></canvas>
+
+  <ol class="rulechips" aria-label="Rules currently on">
+    <li data-rule="chase"><b>1</b> Chase the bounce</li>
+    <li data-rule="open"><b>2</b> Hit where they aren't</li>
+    <li data-rule="recover"><b>3</b> Go back to the middle</li>
+    <li data-rule="imperfect"><b>4</b> Nobody is perfect</li>
+  </ol>
+
+  <main id="story">
+    <section id="top" class="chapter hero" data-chapter="hero">
+      <div class="copy center">
+        <p class="eyebrow reveal">An emergent animation</p>
+        <h1 class="reveal">Long Rally.</h1>
+        <p class="lede reveal">One ball. Four rules. <em>Every path it ever took.</em></p>
+      </div>
+      <a class="scrollcue reveal" href="#serve">Scroll to see how the ball decides where to go</a>
+    </section>
+
+    <section id="serve" class="chapter stage" data-chapter="serve">
+      <div class="copy head">
+        <p class="eyebrow reveal">The ball</p>
+        <h2 class="reveal">It starts with a serve.</h2>
+      </div>
+      <div class="copy foot">
+        <p class="body reveal">The ball flies in an arc and bounces once. If it lands outside the lines or bounces twice, the point is over. <em>Every flight leaves its path on the court.</em> For now nothing sends it back, so every point is one shot long.</p>
+      </div>
+    </section>
+
+    <section id="rule1" class="chapter stage" data-chapter="rule1">
+      <div class="copy head">
+        <p class="eyebrow reveal">Rule 1</p>
+        <h2 class="reveal">Chase the bounce.</h2>
+      </div>
+      <div class="copy foot">
+        <p class="body reveal">Wherever the ball lands, someone gets to it and sends it back. With no other rule, it goes back the way it came. <em>The rally goes on and on, down one bright groove.</em></p>
+      </div>
+    </section>
+
+    <section id="rule2" class="chapter stage" data-chapter="rule2">
+      <div class="copy head">
+        <p class="eyebrow reveal">Rule 2</p>
+        <h2 class="reveal">Hit where they aren't.</h2>
+      </div>
+      <div class="copy foot">
+        <p class="body reveal">Each return goes to the side of the court that is empty. The ball starts to zigzag, <em>pulling the rally out wide</em>, and most points end after a few shots.</p>
+      </div>
+    </section>
+
+    <section id="rule3" class="chapter stage" data-chapter="rule3">
+      <div class="copy head">
+        <p class="eyebrow reveal">Rule 3</p>
+        <h2 class="reveal">Go back to the middle.</h2>
+      </div>
+      <div class="copy foot">
+        <p class="body reveal">After every shot, whoever hit it drifts back to the center of the baseline, so the next ball can always be reached. <em>The zigzag locks into one figure</em> and repeats almost forever.</p>
+      </div>
+    </section>
+
+    <section id="rule4" class="chapter stage" data-chapter="rule4">
+      <div class="copy head">
+        <p class="eyebrow reveal">Rule 4</p>
+        <h2 class="reveal">Nobody is perfect.</h2>
+      </div>
+      <div class="copy foot">
+        <p class="body reveal">Every shot misses its aim a little, and more when it was hard to reach. Balls start landing out. <em>The perfect figure loosens into a weave</em>, and no two rallies are the same.</p>
+      </div>
+    </section>
+
+    <section id="exposure" class="chapter stage" data-chapter="exposure">
+      <div class="copy head">
+        <p class="eyebrow reveal">All four rules, all night</p>
+        <h2 class="reveal">Leave the shutter open.</h2>
+      </div>
+      <div class="copy foot">
+        <dl class="stats reveal" aria-live="off">
+          <div><dt id="stat-shots">0</dt><dd>shots</dd></div>
+          <div><dt id="stat-rallies">0</dt><dd>rallies</dd></div>
+          <div><dt id="stat-longest">0</dt><dd>longest rally</dd></div>
+        </dl>
+        <p class="body reveal">Sixteen matches play on the same court, and every arc stays. <em>Nobody drew this shape.</em> It is what four small rules look like after a long night of tennis.</p>
+      </div>
+    </section>
+
+    <section id="play" class="chapter play" data-chapter="play">
+      <div class="copy">
+        <h2 class="reveal">Take the court.</h2>
+        <p class="body reveal"><em>Drag</em> to walk around the court. Switch rules off, change how the ball is played, and see what shape it leaves behind.</p>
+        <form id="panel" class="panel reveal" onsubmit="return false">
+          <fieldset class="toggles">
+            <legend>Rules</legend>
+            <label><input id="r-chase" type="checkbox" checked> 1 Chase the bounce</label>
+            <label><input id="r-open" type="checkbox" checked> 2 Hit where they aren't</label>
+            <label><input id="r-recover" type="checkbox" checked> 3 Go back to the middle</label>
+            <label><input id="r-imperfect" type="checkbox" checked> 4 Nobody is perfect</label>
+          </fieldset>
+          <div class="sliders">
+            <label class="slider">Aggression <output id="v-aggression"></output>
+              <input id="aggression" type="range" min="0" max="1" step="0.05">
+            </label>
+            <label class="slider">Error <output id="v-error"></output>
+              <input id="error" type="range" min="0" max="1" step="0.05">
+            </label>
+            <label class="slider">Running speed <output id="v-runSpeed"></output>
+              <input id="runSpeed" type="range" min="3" max="8" step="0.25">
+            </label>
+            <label class="slider">Matches at once <output id="v-matches"></output>
+              <input id="matches" type="range" min="1" max="32" step="1">
+            </label>
+            <label class="slider">Time speed <output id="v-timeScale"></output>
+              <input id="timeScale" type="range" min="0.5" max="8" step="0.5">
+            </label>
+          </div>
+          <div class="buttons">
+            <button id="clear" type="button">Clear the court</button>
+            <button id="view" type="button">Reset view</button>
+            <button id="replay" type="button">Replay intro</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <section id="game" class="chapter stage game" data-chapter="game">
+      <div class="copy head">
+        <p class="eyebrow reveal">Mini game</p>
+        <h2 class="reveal">Your rally.</h2>
+        <p class="body reveal">You hold the near side; the computer plays the far side by the same four rules. Reach the blue ring with yours before the ball gets there; catch it on the right of your ring to send it right, on the left to send it left. <em>Every shot you trade stays on the court.</em></p>
+        <p class="hud reveal" aria-live="polite">
+          <span>Rally <b id="g-rally">0</b></span>
+          <span>Best <b id="g-best">0</b></span>
+          <span>You <b id="g-you">0</b> : <b id="g-cpu">0</b> Computer</span>
+        </p>
+      </div>
+      <div class="copy foot">
+        <p id="g-msg" class="gmsg" aria-live="polite"></p>
+        <button id="g-serve" type="button" class="serve" hidden>Serve</button>
+        <div id="g-over" class="gover" role="dialog" aria-modal="false" aria-labelledby="g-result" hidden>
+          <p id="g-result" class="gover-title">Ready to play?</p>
+          <p id="g-why" class="gover-why"></p>
+          <ol id="g-how" class="gover-how">
+            <li><b>Move</b> <span class="for-mouse">with the mouse or the arrow keys.</span><span class="for-touch">by dragging left and right on the court.</span></li>
+            <li><b>Serve</b> with the Serve button<span class="for-mouse">, Space, or a click on the court</span>.</li>
+            <li><b>Return</b> the ball by moving your yellow ring onto the blue ring before the ball gets there. The blue ring shows where to play it, just after the bounce, and turns yellow once your return is locked in.</li>
+            <li><b>Win</b> the point when the computer hits it out, into the net, or can’t reach your shot. Do the same and you lose.</li>
+          </ol>
+          <div class="buttons">
+            <button id="g-new" type="button" class="primary">Start game</button>
+            <button id="g-exit" type="button">Exit</button>
+          </div>
+        </div>
+        <p class="hint"><span class="for-mouse">Move with the mouse or the arrow keys. Serve with the button, Space, or a click.</span><span class="for-touch">Drag to move. Tap Serve to serve.</span></p>
+      </div>
+    </section>
+
+    <footer id="credits" class="credits">
+      <div class="copy">
+        <h3>Credits</h3>
+        <p>Made by George Zhao for AI Design &amp; Creativity at Cornell University, coded together with Claude. All code was written for this project.</p>
+        <ul>
+          <li><b>The court</b> uses the official ITF singles dimensions: 23.77 m by 8.23 m, with a 0.914 m net.</li>
+          <li><b>The ball</b> follows simple projectile physics: gravity, one bounce that keeps 60% of its pace.</li>
+          <li><b>The players</b> are never drawn. They exist only as the four rules above, and know nothing about tactics. In the mini game, you replace one of them.</li>
+          <li><b>The look</b> borrows from long-exposure sports photography and ball-tracking graphics on TV.</li>
+        </ul>
+        <p class="fine"><a id="code-link" href="https://github.com/">Source code on GitHub</a></p>
+      </div>
+    </footer>
+  </main>
+
+  <script src="rally.js"></script>
+  <script src="intro.js"></script>
+  <script src="story.js"></script>
+</body>
+</html>

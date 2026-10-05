@@ -1,0 +1,381 @@
+/* Layout: a fixed full-screen night court behind a tall scrolling story; each chapter is one
+   screen that switches a rule on in the simulation, the last chapter is a playable sandbox. */
+:root {
+  --sky: #000000;
+  --ink: #f5f5f7;
+  --muted: #a1a1a6;
+  --faint: #6e6e73;
+  --glow: #d6ff3a;
+  --glass: rgba(22, 22, 24, 0.66);
+  --hairline: rgba(255, 255, 255, 0.12);
+  --display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", "Segoe UI", Roboto, Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", "Noto Sans CJK SC", "WenQuanYi Zen Hei", sans-serif;
+  --text: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", "Segoe UI", Roboto, Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", "Noto Sans CJK SC", "WenQuanYi Zen Hei", sans-serif;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--sky);
+  color: var(--ink);
+  font: 17px/1.47 var(--text);
+  letter-spacing: -0.022em;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--glow); text-decoration: none; }
+a:hover { text-decoration: underline; }
+a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--glow); outline-offset: 3px; }
+
+/* ---------- the court ---------- */
+#court, #trails, #live {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: pan-y;
+}
+#trails, #live { pointer-events: none; }
+body[data-chapter="play"] #court { cursor: grab; }
+body[data-chapter="play"] #court:active { cursor: grabbing; }
+
+/* ---------- rule chips: which rules are on right now ---------- */
+.rulechips {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 18px);
+  left: 16px;
+  right: 16px;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  pointer-events: none;
+  transition: opacity 0.6s;
+}
+.rulechips li {
+  padding: 5px 11px;
+  border-radius: 980px;
+  font-size: 12px;
+  color: var(--faint);
+  background: var(--glass);
+  border: 1px solid var(--hairline);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: color 0.5s, border-color 0.5s, box-shadow 0.5s;
+}
+.rulechips li b { font-weight: 600; margin-right: 3px; }
+.rulechips li.on {
+  color: var(--glow);
+  border-color: rgba(214, 255, 58, 0.45);
+  box-shadow: 0 0 18px rgba(214, 255, 58, 0.18);
+}
+body[data-chapter="hero"] .rulechips,
+body[data-chapter="game"] .rulechips,
+body[data-chapter="play"] .rulechips,
+body[data-chapter="credits"] .rulechips { opacity: 0; }
+
+/* ---------- story ---------- */
+#story { position: relative; z-index: 2; pointer-events: none; }
+/* the dark pools behind the text reach past the edges; don't let them widen the page on phones */
+.chapter, .credits { overflow-x: hidden; overflow-x: clip; }
+#story a, #story button, #story input, #story label, #story .panel { pointer-events: auto; }
+
+.chapter {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  padding-block: 96px;
+  padding-inline: max(16px, 6vw);
+}
+
+.copy {
+  position: relative;
+  isolation: isolate;
+  max-width: 34rem;
+  padding: 28px 0;
+}
+/* a soft pool of darkness behind the words so they stay readable over the flock */
+.copy::before {
+  content: "";
+  position: absolute;
+  inset: -20% -30%;
+  z-index: -1;
+  background: radial-gradient(closest-side, rgba(0, 0, 0, 0.78), rgba(0, 0, 0, 0.4) 60%, transparent);
+  pointer-events: none;
+}
+.copy.center { max-width: 56rem; margin: 0 auto; text-align: center; }
+
+/* story chapters: the title stands big at the top, the picture in the middle,
+   a short explanation underneath, like the sections of a product page */
+.chapter.stage {
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  text-align: center;
+  padding-top: max(76px, 9vh);
+  padding-bottom: max(32px, 5vh);
+}
+.stage .copy { margin: 0 auto; }
+.stage .head { max-width: 60rem; padding: 0; }
+.stage .head h2 { font-size: clamp(44px, 7.2vw, 104px); }
+.stage .foot { max-width: 40rem; padding: 12px 0; }
+.stage .foot .body { margin: 0 auto; }
+.stage .foot .stats + .body { margin-top: 18px; }
+.copy.right { margin-left: auto; }
+
+.eyebrow {
+  margin: 0 0 8px;
+  font: 600 19px/1.2 var(--display);
+  letter-spacing: 0.01em;
+  color: var(--glow);
+}
+
+h1, h2 {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 700;
+  text-wrap: balance;
+  background: linear-gradient(180deg, #ffffff 35%, #dbe9a0 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: none;
+  /* the gradient only paints inside the box, so give descenders (g, y, p) room below */
+  padding-bottom: 0.14em;
+  margin-bottom: -0.14em;
+}
+h1 { font-size: clamp(56px, 12vw, 148px); line-height: 1.02; letter-spacing: -0.045em; }
+h2 { font-size: clamp(40px, 6.4vw, 80px); line-height: 1.05; letter-spacing: -0.035em; }
+
+.lede {
+  margin: 20px auto 0;
+  font: 500 clamp(21px, 2.6vw, 28px)/1.3 var(--display);
+  color: var(--muted);
+  text-wrap: balance;
+}
+.body {
+  margin: 22px 0 0;
+  font: 500 clamp(19px, 1.9vw, 24px)/1.38 var(--display);
+  color: var(--muted);
+  text-shadow: 0 1px 18px rgba(0, 0, 0, 0.9);
+}
+.lede em, .body em { font-style: normal; color: var(--ink); }
+
+.scrollcue {
+  display: inline-block;
+  margin-top: 40px;
+  font-size: 15px;
+  color: var(--muted);
+}
+.scrollcue::after {
+  content: "";
+  display: block;
+  width: 1px;
+  height: 44px;
+  margin: 14px auto 0;
+  background: linear-gradient(var(--glow), transparent);
+  animation: drip 2.2s ease-in-out infinite;
+}
+@keyframes drip { 0%, 100% { transform: scaleY(0.4); transform-origin: top; } 50% { transform: scaleY(1); } }
+
+/* the title sits above the picture, like a product name over the product */
+.hero { text-align: center; align-items: flex-start; position: relative; padding-top: max(72px, 10vh); }
+.hero .copy { margin-inline: auto; }
+.hero h1 { font-size: clamp(56px, 10vw, 136px); }
+.hero .lede { margin-top: 12px; }
+.hero .scrollcue { position: absolute; left: 0; right: 0; bottom: max(20px, 3vh); margin: 0; }
+
+/* stats row */
+.stats {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 28px 64px;
+  margin: 40px 0 8px;
+}
+.stats div { display: flex; flex-direction: column; align-items: center; }
+.stats dt {
+  font: 700 clamp(48px, 7vw, 88px)/1 var(--display);
+  letter-spacing: -0.04em;
+  color: var(--glow);
+  font-variant-numeric: tabular-nums;
+}
+.stats dd { margin: 8px 0 0; color: var(--muted); font-size: 17px; }
+#order .body { max-width: 40rem; margin-inline: auto; }
+
+/* ---------- sandbox ---------- */
+.play { align-items: flex-start; padding-top: 72px; }
+.play .copy { max-width: 26rem; }
+.play h2 { font-size: clamp(44px, 5.6vw, 84px); }
+.play .copy::before { display: none; }
+.sliders { display: grid; gap: 14px; align-content: start; }
+
+.panel {
+  margin-top: 28px;
+  padding: 20px;
+  display: grid;
+  gap: 16px;
+  background: var(--glass);
+  border: 1px solid var(--hairline);
+  border-radius: 18px;
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  font-size: 14px;
+}
+.toggles { margin: 0; padding: 0; border: 0; display: grid; gap: 8px; }
+.toggles legend { padding: 0; margin-bottom: 8px; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--faint); }
+.toggles label { display: flex; align-items: center; gap: 10px; color: var(--ink); cursor: pointer; }
+input[type="checkbox"] { width: 18px; height: 18px; margin: 0; accent-color: var(--glow); }
+.slider { display: grid; grid-template-columns: 1fr auto; gap: 6px; color: var(--muted); }
+.slider output { color: var(--ink); font-variant-numeric: tabular-nums; }
+.slider input { grid-column: 1 / -1; width: 100%; accent-color: var(--glow); }
+.buttons { display: flex; flex-wrap: wrap; gap: 10px; }
+button {
+  flex: 1 1 auto;
+  padding: 9px 18px;
+  font: 500 14px var(--text);
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--hairline);
+  border-radius: 980px;
+  cursor: pointer;
+}
+button:hover { background: rgba(255, 255, 255, 0.16); }
+
+/* ---------- credits ---------- */
+.credits {
+  position: relative;
+  padding: 80px max(16px, 6vw) calc(env(safe-area-inset-bottom, 0px) + 80px);
+  background: linear-gradient(transparent, #000 90px);
+  color: var(--muted);
+  font-size: 14px;
+  pointer-events: auto;
+}
+.credits .copy { max-width: 44rem; }
+.credits h3 { margin: 0 0 12px; font: 600 24px var(--display); color: var(--ink); }
+.credits ul { padding-left: 18px; }
+.credits li { margin: 6px 0; }
+.credits b { color: var(--ink); font-weight: 600; }
+.fine { margin-top: 24px; }
+
+/* ---------- reveal on scroll ---------- */
+html.js .reveal {
+  opacity: 0;
+  transform: translateY(36px);
+  transition: opacity 0.9s cubic-bezier(0.2, 0.7, 0.2, 1), transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+html.js .reveal.in { opacity: 1; transform: none; }
+.copy .reveal:nth-child(2) { transition-delay: 0.08s; }
+.copy .reveal:nth-child(3) { transition-delay: 0.16s; }
+.copy .reveal:nth-child(4) { transition-delay: 0.24s; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  html.js .reveal { transform: none; transition: opacity 0.4s; }
+  .scrollcue::after { animation: none; }
+}
+
+/* ---------- phones ---------- */
+@media (max-width: 640px) {
+  .chapter { align-items: flex-end; padding-bottom: 120px; }
+  .play { align-items: center; }
+  .hero { align-items: flex-start; }
+  .copy, .copy.right { margin: 0; }
+  .rulechips li { font-size: 11px; padding: 4px 9px; }
+  .chapter.stage { padding-top: 84px; padding-bottom: 28px; }
+  .stage .foot .body { font-size: 17px; }
+  .game .body { font-size: 14px; }
+  .hud b { font-size: 24px; }
+  .hud { gap: 4px 18px; }
+}
+
+/* ---------- mini game ---------- */
+body[data-chapter="game"] #court { cursor: crosshair; }
+.hud {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px 28px;
+  margin: 0;
+  font: 500 17px/1.2 var(--display);
+  color: var(--muted);
+}
+.hud b { font: 700 30px/1 var(--display); color: var(--glow); margin: 0 4px; font-variant-numeric: tabular-nums; }
+.gmsg { min-height: 1.4em; margin: 0; font: 600 20px/1.3 var(--display); color: var(--ink); transition: opacity 0.4s; }
+.gmsg:empty { opacity: 0; }
+.game .head h2 { font-size: clamp(40px, 5vw, 72px); }
+.game .body { font-size: clamp(15px, 1.3vw, 18px); margin: 10px auto 0; max-width: 40rem; }
+.game .hud { margin-top: 14px; }
+/* once a game is under way, only the score stays on screen */
+body.playing .game .head .eyebrow,
+body.playing .game .head h2,
+body.playing .game .head .body,
+body.playing .game .hint { display: none; }
+body.playing .game .head::before { display: none; }
+body.playing .game .hud { margin-top: 0; }
+.game .foot::before { display: none; }
+.game .foot { padding: 0; }
+.gover {
+  position: fixed;
+  left: 50%;
+  top: 54%;
+  transform: translate(-50%, -50%);
+  z-index: 20;
+  width: min(360px, calc(100% - 32px));
+  padding: 28px 24px 24px;
+  text-align: center;
+  border-radius: 22px;
+  background: rgba(16, 16, 18, 0.82);
+  border: 1px solid var(--hairline);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+  pointer-events: auto;
+  animation: pop 0.35s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.gover[hidden] { display: none; }
+@keyframes pop { from { opacity: 0; transform: translate(-50%, -46%) scale(0.96); } }
+.gover-title { margin: 0; font: 700 44px/1.05 var(--display); letter-spacing: -0.03em; color: var(--ink); }
+.gover.win .gover-title { color: var(--glow); }
+.gover-why { margin: 10px 0 20px; font: 500 16px/1.4 var(--display); color: var(--muted); }
+.gover .buttons { justify-content: center; }
+.gover-how { margin: 4px 0 22px; padding: 0; list-style: none; text-align: left; font: 500 15px/1.45 var(--display); color: var(--muted); }
+.gover-how li { margin: 0 0 8px; }
+.gover-how b { color: var(--ink); }
+.gover-how[hidden], .gover-why:empty { display: none; }
+.serve {
+  margin: 4px auto 0;
+  padding: 12px 34px;
+  font: 600 18px/1 var(--display);
+  color: #000;
+  background: var(--glow);
+  border: 0;
+  border-radius: 980px;
+  box-shadow: 0 0 28px rgba(214, 255, 58, 0.35);
+  cursor: pointer;
+  pointer-events: auto;
+}
+.serve[hidden] { display: none; }
+.gover button.primary { color: #000; background: var(--glow); border-color: var(--glow); }
+.hint { margin: 10px 0 0; font-size: 14px; color: var(--faint); }
+.for-touch { display: none; }
+@media (hover: none) and (pointer: coarse) {
+  .for-touch { display: inline; }
+  .for-mouse { display: none; }
+}
+
+/* ---------- the opening reveal: nothing but the ball until the title lands ---------- */
+body.intro .rulechips { opacity: 0; }
+
+/* ---------- teaser recording: only the sky ---------- */
+html.teaser .rulechips, html.teaser #story { display: none; }
+html.teaser body { background: #000; }
